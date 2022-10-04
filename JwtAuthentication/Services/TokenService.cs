@@ -1,0 +1,42 @@
+﻿using JwtAuthentication.Models;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+
+namespace JwtAuthentication.Services;
+
+public class TokenService
+{
+    private readonly IConfiguration _configuration;
+
+    //ERROR: NULLABLE
+    public TokenService(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+
+    public string GenerateToken(User user)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+
+        //POSSIVEIS CAUSAS:
+        //1. O método é estático, a classe não está sendo instânciada e o _configuration não está sendo injetado
+        //2. A propriedade _configuration está estática e pode causar algum tipo de inconsistência
+        var key = Encoding.ASCII.GetBytes(_configuration.GetValue<string>("Jwt:SecretKey"));
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(
+                new Claim[]
+                {
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.Role, user.Role.ToString())
+                }    
+            ),
+            Expires = DateTime.UtcNow.AddHours(8),
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        };
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(token);
+    }
+}
