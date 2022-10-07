@@ -10,7 +10,6 @@ public class TokenService
 {
     private readonly IConfiguration _configuration;
 
-    //ERROR: NULLABLE
     public TokenService(IConfiguration configuration)
     {
         _configuration = configuration;
