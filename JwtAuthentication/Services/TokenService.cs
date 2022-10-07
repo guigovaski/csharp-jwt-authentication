@@ -20,9 +20,6 @@ public class TokenService
     {
         var tokenHandler = new JwtSecurityTokenHandler();
 
-        //POSSIVEIS CAUSAS:
-        //1. O método é estático, a classe não está sendo instânciada e o _configuration não está sendo injetado
-        //2. A propriedade _configuration está estática e pode causar algum tipo de inconsistência
         var key = Encoding.ASCII.GetBytes(_configuration.GetValue<string>("Jwt:SecretKey"));
         var tokenDescriptor = new SecurityTokenDescriptor
         {
